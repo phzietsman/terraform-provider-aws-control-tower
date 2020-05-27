@@ -35,7 +35,7 @@ To compile the provider, run `make build`. This will build the provider and put 
 ```sh
 $ make build
 ...
-$ $GOPATH/bin/terraform-provider-aws
+$ $GOPATH/bin/terraform-provider-controltower
 ...
 ```
 
