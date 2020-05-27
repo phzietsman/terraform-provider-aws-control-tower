@@ -31,7 +31,7 @@ deploy:
   skip_cleanup: true
   api_key:
     # Your *encrypted* GitHub key, as the output of the Travis CI CLI tool.
-    secure: RhHHvo0d86zN1O72NMqvtjn+/l9/MKmtC4Br8C8HY9D9dT8rLAoirz4ad3FSWyytjXY4jBZH/1Y5pErvFZULggWds+QuSYFbFft7BMJPPzmu4hSIpfWVdFV9ZxKdYExEwQN2arNjUaIlfZVDTR03UZildyQnVV9C4/OTqZMxUVahU+aN9umn685aKbPu/dbz9uGmaMEv2WWLCjmriK8TgRcSwSMsF92bnRT3CLGLaxbf+6bPE1sssKH9DfknAXdnE03FxWhSleI++wxwlchc9OHd2D9zTWdlTJM6FO/Lz/m1SqxDeVk81wYmpDD/xuN5zGWCEbxwnw9zGDxAPCTllah8h5e/2O55QAVNmN7i5ZTVibN1/1Nuok+wSH68AJXN2EvpkIqeO2TT4CihWFgueWxdkJVM9alWEtMjVIL/x9Xz/RcmV5TlCf+eDC/4DJIksI6ParXGilNaG9sf4Rt2k+ubmEFPTG/7+b/80qcRVXw2LY+xz/r0wEBLkO8I0MLPyxMRoj0xW65pUiUSV6C7yyqoVnUF8FLNf9MxHW9ohEJvnu9t6Q+Zni7abxFH54czgLw80CIbsWS5LUAQ/4jQi3hK+A/do2qw9DZqEY5JyY6uebAM7NYPoMqSvTPgAsQeudWAl3kISS9eGr6FH9c3iglbLDTlUQp+IBaxivfh9g8=
+    secure: p9qomcE85SrxkIJJ/QA1otYZC/vtC/K4mLh1t6mxlRC6IMbkAWapPjKDIwHjy6/gU/7QI8hZeHMp0iE8IX2Ehj5K88jbV4E/Eo/NGc+wCMyGovbhvJkC4c0Y/3OJYW5Ba2qcHZpKV3zRLl8uwz8WnJKj/pMboBtktvac84cnW1+ruwa9V6UsrP6kNJN5cjm5DsFoeoK1e0/wclRfQy2pCtA/h0ixKPYgaXAzdbmGtRYJV4slqqEdF1h4mMSf8nP6r1AWYuJuXsjG9R7EO7/QWADgRcZdDELL90eetnUZMkapva9NYm3pbem9xgnUyBPwSouxiwQHCuqShkxsrrfe8VzQrNu3yZT2TPID7n05NR9PgzKzl2+qmy+gBjAes/8Ev85DFW/SO/cS2ivozU8mI/9CPudLfj04ut90o7fuK1tZ+T5V63yFxEmVrtHz1OR3y/+qyxdh9Uc9Gx7Dg5oEKBsHoQc8jDm5JEkgDESAMljzEx8LEHJaYQdZJnG1ga6OOAfom4bKSN6jG50Oyhz3nSvkx42kAaGVUxp9sCAcCuCBOMIXACoL0YaO9zS1BR6eWmTjXBJ8Dst+QF0L+uu5UETbN79rEW0+U3Kx0U14gqkTtrX8rZAZXl1yaYyZwsUagWhuh5FOplaroORvBK5X17SCpYf21EC6jiXReRnk6CM=
   file:
   # The names of the binaries to output, based on the -output template passed to gox.
   - terraform-provider-controltower_windows_amd64.exe
@@ -39,7 +39,7 @@ deploy:
   - terraform-provider-controltower_linux_amd64
   on:
     # What to repository to build
-    repo: phzietsman/terraform-provider-aws-control-tower
+    repo: phzietsman/terraform-provider-controltower
     # Only build binaries for tagged commits
     tags: true
     condition: $LATEST = true

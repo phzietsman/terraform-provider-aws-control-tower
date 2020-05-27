@@ -1,4 +1,4 @@
-module github.com/phzietsman/terraform-provider-aws-control-tower
+module github.com/phzietsman/terraform-provider-controltower
 
 go 1.14
 

@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 
-	"github.com/phzietsman/terraform-provider-aws-control-tower/aws/internal/keyvaluetags"
+	"github.com/phzietsman/terraform-provider-controltower/aws/internal/keyvaluetags"
 )
 
 func resourceControlTowerAccountVending() *schema.Resource {
