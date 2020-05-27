@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/servicecatalog"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -44,6 +45,10 @@ func resourceControlTowerAccountVending() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"account_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"product_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -61,7 +66,6 @@ func resourceControlTowerAccountVending() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(1, 64),
 			},
-			"tags": tagsSchema(),
 		},
 	}
 }
@@ -129,79 +133,64 @@ func resourceControlTowerAccountVendingCreate(d *schema.ResourceData, meta inter
 }
 
 func resourceControlTowerAccountVendingRead(d *schema.ResourceData, meta interface{}) error {
-	// conn := meta.(*AWSClient).scconn
-	// input := servicecatalog.DescribePortfolioInput{
-	// 	AcceptLanguage: aws.String("en"),
-	// }
-	// input.Id = aws.String(d.Id())
 
-	// log.Printf("[DEBUG] Reading Service Catalog Portfolio: %#v", input)
-	// resp, err := conn.DescribePortfolio(&input)
-	// if err != nil {
-	// 	if scErr, ok := err.(awserr.Error); ok && scErr.Code() == "ResourceNotFoundException" {
-	// 		log.Printf("[WARN] Service Catalog Portfolio %q not found, removing from state", d.Id())
-	// 		d.SetId("")
-	// 		return nil
-	// 	}
-	// 	return fmt.Errorf("Reading ServiceCatalog Portfolio '%s' failed: %s", *input.Id, err.Error())
-	// }
-	// portfolioDetail := resp.PortfolioDetail
-	// if err := d.Set("created_time", portfolioDetail.CreatedTime.Format(time.RFC3339)); err != nil {
-	// 	log.Printf("[DEBUG] Error setting created_time: %s", err)
-	// }
-	// d.Set("arn", portfolioDetail.ARN)
-	// d.Set("description", portfolioDetail.Description)
-	// d.Set("name", portfolioDetail.DisplayName)
-	// d.Set("provider_name", portfolioDetail.ProviderName)
+	conn := meta.(*AWSClient).scconn
 
-	// if err := d.Set("tags", keyvaluetags.ServicecatalogKeyValueTags(resp.Tags).IgnoreAws().Map()); err != nil {
-	// 	return fmt.Errorf("error setting tags: %s", err)
-	// }
+	// Get Provisioned Product
+	inputProvisionedProduct := servicecatalog.DescribeProvisionedProductInput{
+		AcceptLanguage: aws.String("en"),
+		Id:             aws.String(d.Id()),
+	}
+
+	log.Printf("[DEBUG] Reading Service Catalog Provisoned Product: %#v", inputProvisionedProduct)
+
+	respProvisionedProduct, err := conn.DescribeProvisionedProduct(&inputProvisionedProduct)
+	if err != nil {
+		if scErr, ok := err.(awserr.Error); ok && scErr.Code() == "ResourceNotFoundException" {
+			log.Printf("[WARN] Service Catalog Provisioned Product %q not found, removing from state", d.Id())
+			d.SetId("")
+			return nil
+		}
+		return fmt.Errorf("Reading ServiceCatalog Provisioned Product '%s' failed: %s", *inputProvisionedProduct.Id, err.Error())
+	}
+
+	provisionedProductDetail := respProvisionedProduct.ProvisionedProductDetail
+
+	if err := d.Set("created_time", provisionedProductDetail.CreatedTime.Format(time.RFC3339)); err != nil {
+		log.Printf("[DEBUG] Error setting created_time: %s", err)
+	}
+	d.Set("arn", provisionedProductDetail.Arn)
+
+	// Get Record with Account Number
+	inputRecord := servicecatalog.DescribeRecordInput{
+		AcceptLanguage: aws.String("en"),
+		Id:             aws.String(d.Get("record_id").(string)),
+	}
+
+	respRecord, err := conn.DescribeRecord(&inputRecord)
+	if err != nil {
+		if scErr, ok := err.(awserr.Error); ok && scErr.Code() == "ResourceNotFoundException" {
+			log.Printf("[WARN] Service Catalog Resource %q not found, remove account_id", *inputProvisionedProduct.Id)
+			d.Set("account_id", "")
+			return nil
+		}
+		return fmt.Errorf("Reading ServiceCatalog Record '%s' failed: %s", *inputProvisionedProduct.Id, err.Error())
+	}
+
+	recordOutputs := respRecord.RecordOutputs
+
+	for _, recordOutput := range recordOutputs {
+		if *recordOutput.OutputKey == "AccountId" {
+			d.Set("account_id", recordOutput.OutputValue)
+		}
+	}
 
 	return nil
 }
 
 func resourceControlTowerAccountVendingUpdate(d *schema.ResourceData, meta interface{}) error {
-	// conn := meta.(*AWSClient).scconn
-	// input := servicecatalog.UpdatePortfolioInput{
-	// 	AcceptLanguage: aws.String("en"),
-	// 	Id:             aws.String(d.Id()),
-	// }
-
-	// if d.HasChange("name") {
-	// 	v, _ := d.GetOk("name")
-	// 	input.DisplayName = aws.String(v.(string))
-	// }
-
-	// if d.HasChange("accept_language") {
-	// 	v, _ := d.GetOk("accept_language")
-	// 	input.AcceptLanguage = aws.String(v.(string))
-	// }
-
-	// if d.HasChange("description") {
-	// 	v, _ := d.GetOk("description")
-	// 	input.Description = aws.String(v.(string))
-	// }
-
-	// if d.HasChange("provider_name") {
-	// 	v, _ := d.GetOk("provider_name")
-	// 	input.ProviderName = aws.String(v.(string))
-	// }
-
-	// if d.HasChange("tags") {
-	// 	o, n := d.GetChange("tags")
-
-	// 	input.AddTags = keyvaluetags.New(n).IgnoreAws().ServicecatalogTags()
-	// 	input.RemoveTags = aws.StringSlice(keyvaluetags.New(o).IgnoreAws().Keys())
-	// }
-
-	// log.Printf("[DEBUG] Update Service Catalog Portfolio: %#v", input)
-	// _, err := conn.UpdatePortfolio(&input)
-	// if err != nil {
-	// 	return fmt.Errorf("Updating Service Catalog Portfolio '%s' failed: %s", *input.Id, err.Error())
-	// }
-	// return resourceControlTowerAccountVendingRead(d, meta)
-
+	// Do not support updating of vended accounts. I dont fully understand what is
+	// supported from an updating point of view.
 	return nil
 }
 

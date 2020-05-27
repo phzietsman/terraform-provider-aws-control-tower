@@ -23,3 +23,7 @@ resource controltower_account_vending crypto {
 
   name = var.account
 }
+
+output account_id {
+  value = controltower_account_vending.crypto.account_id
+}

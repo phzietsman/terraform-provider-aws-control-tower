@@ -1,0 +1,45 @@
+language: go
+sudo: false
+matrix:
+  include:
+    # "1.x" always refers to the latest Go version, inc. the patch release.
+    # e.g. "1.x" is 1.11 until 1.11.1 is available.
+    - go: 1.x
+      env: LATEST=true
+    - go: 1.14.x
+    - go: tip
+  allow_failures:
+    - go: tip
+
+before_install:
+  # gox simplifies building for multiple architectures
+  - go get github.com/mitchellh/gox
+
+install:
+  - # skip
+
+script:
+  - go get -t -v ./...
+  - diff -u <(echo -n) <(gofmt -d .)
+  - go vet $(go list ./... | grep -v /vendor/)
+  - go test -v -race ./...
+  # Only build binaries from the latest Go release.
+  - if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...; fi
+
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    # Your *encrypted* GitHub key, as the output of the Travis CI CLI tool.
+    secure: RhHHvo0d86zN1O72NMqvtjn+/l9/MKmtC4Br8C8HY9D9dT8rLAoirz4ad3FSWyytjXY4jBZH/1Y5pErvFZULggWds+QuSYFbFft7BMJPPzmu4hSIpfWVdFV9ZxKdYExEwQN2arNjUaIlfZVDTR03UZildyQnVV9C4/OTqZMxUVahU+aN9umn685aKbPu/dbz9uGmaMEv2WWLCjmriK8TgRcSwSMsF92bnRT3CLGLaxbf+6bPE1sssKH9DfknAXdnE03FxWhSleI++wxwlchc9OHd2D9zTWdlTJM6FO/Lz/m1SqxDeVk81wYmpDD/xuN5zGWCEbxwnw9zGDxAPCTllah8h5e/2O55QAVNmN7i5ZTVibN1/1Nuok+wSH68AJXN2EvpkIqeO2TT4CihWFgueWxdkJVM9alWEtMjVIL/x9Xz/RcmV5TlCf+eDC/4DJIksI6ParXGilNaG9sf4Rt2k+ubmEFPTG/7+b/80qcRVXw2LY+xz/r0wEBLkO8I0MLPyxMRoj0xW65pUiUSV6C7yyqoVnUF8FLNf9MxHW9ohEJvnu9t6Q+Zni7abxFH54czgLw80CIbsWS5LUAQ/4jQi3hK+A/do2qw9DZqEY5JyY6uebAM7NYPoMqSvTPgAsQeudWAl3kISS9eGr6FH9c3iglbLDTlUQp+IBaxivfh9g8=
+  file:
+  # The names of the binaries to output, based on the -output template passed to gox.
+  - terraform-provider-controltower_windows_amd64.exe
+  - terraform-provider-controltower_darwin_amd64
+  - terraform-provider-controltower_linux_amd64
+  on:
+    # What to repository to build
+    repo: phzietsman/terraform-provider-aws-control-tower
+    # Only build binaries for tagged commits
+    tags: true
+    condition: $LATEST = true
