@@ -7,7 +7,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	homedir "github.com/mitchellh/go-homedir"
-	"github.com/terraform-providers/terraform-provider-aws/aws/internal/keyvaluetags"
+
+	"github.com/phzietsman/terraform-provider-aws-control-tower/aws/internal/keyvaluetags"
 )
 
 // Provider returns a terraform.ResourceProvider.
@@ -165,11 +166,11 @@ func Provider() terraform.ResourceProvider {
 				Description: descriptions["s3_force_path_style"],
 			},
 		},
-		
+
 		DataSourcesMap: map[string]*schema.Resource{},
-		
+
 		ResourcesMap: map[string]*schema.Resource{
-			"aws_servicecatalog_portfolio": resourceAwsServiceCatalogPortfolio(),
+			"controltower_account_vending": resourceControlTowerAccountVending(),
 		},
 	}
 
@@ -252,7 +253,7 @@ func init() {
 	}
 
 	endpointServiceNames = []string{
-		"servicecatalog"
+		"servicecatalog",
 	}
 }
 
@@ -373,10 +374,6 @@ func endpointsSchema() *schema.Schema {
 			Description: descriptions["endpoint"],
 		}
 	}
-
-	// Since the endpoints attribute is a TypeSet we cannot use ConflictsWith
-	endpointsAttributes["kinesis_analytics"].Deprecated = "use `endpoints` configuration block `kinesisanalytics` argument instead"
-	endpointsAttributes["r53"].Deprecated = "use `endpoints` configuration block `route53` argument instead"
 
 	return &schema.Schema{
 		Type:     schema.TypeSet,

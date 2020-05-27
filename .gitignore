@@ -40,3 +40,5 @@ website/vendor
 node_modules
 
 terraform-provider-aws-control-tower
+
+terraform-provider-controltower
