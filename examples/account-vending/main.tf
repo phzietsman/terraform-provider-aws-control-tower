@@ -22,6 +22,14 @@ resource controltower_account_vending crypto {
   }
 
   name = var.account
+
+  # This will prevent things going sideways if you dynamically 
+  # lookup the latest artefact id
+  lifecycle {
+    ignore_changes = [
+      artefact_id,
+    ]
+  }
 }
 
 output account_id {
